@@ -1,0 +1,2 @@
+# RecognitionText
+简繁
