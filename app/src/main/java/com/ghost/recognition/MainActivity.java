@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private Button simpword;
     int count = 1;
     boolean flag = true;
-    private static  String msg = "";
+    private String msg = "";
+    private long clickTime = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
         getImageText = findViewById(R.id.bt_getword);
         simpword = findViewById(R.id.bt_simptotrad);
         display = findViewById(R.id.display);
+        //图片高度自适应
+        int screenWidth = picture.getWidth();
+        picture.setMaxHeight(screenWidth*5);
+        picture.setMaxHeight(screenWidth);
         verifyStoragePermissions(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -130,7 +135,12 @@ public class MainActivity extends AppCompatActivity {
         simpword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(System.currentTimeMillis() - clickTime > 400){
+                    clickTime = System.currentTimeMillis();
+                }else{
 
+                    return;
+                }
                 if (flag){
                     String original = display.getText().toString();
                     String result = ZhConverterUtil.toTraditional(original);
@@ -149,8 +159,14 @@ public class MainActivity extends AppCompatActivity {
         getImageText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(System.currentTimeMillis() - clickTime > 400){
+                    clickTime = System.currentTimeMillis();
+                }else{
 
-                    new Thread(new Runnable() {
+                    return;
+                }
+
+                Thread  thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             picture.setDrawingCacheEnabled(true);
@@ -204,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 msg = sb.toString();
 
+
                             }else{
                                 msg = "抱歉，无法识别文字！";
 
@@ -211,8 +228,18 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                         }
-                    }).start();
+                    });
+                thread.start();
+                try {
+                    thread.join(50000);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 display.setText(msg);
+
+
             }
         });
 
