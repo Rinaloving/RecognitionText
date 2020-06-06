@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private Button simpword;
     int count = 1;
     boolean flag = true;
+    private static  String msg = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                Toast.makeText(MainActivity.this,"角度："+degree+" 宽度："+picture.getWidth(),Toast.LENGTH_LONG).show();
+               // Toast.makeText(MainActivity.this,"角度："+degree+" 宽度："+picture.getWidth(),Toast.LENGTH_LONG).show();
             }
         });
 
@@ -201,16 +202,17 @@ public class MainActivity extends AppCompatActivity {
                                     sb.append(wordObj.get("words").toString()).append("\n");
 
                                 }
-                                display.setText(sb.toString());
+                                msg = sb.toString();
 
                             }else{
-                                display.setText("抱歉，无法识别文字！");
+                                msg = "抱歉，无法识别文字！";
+
 
                             }
 
                         }
                     }).start();
-
+                display.setText(msg);
             }
         });
 
