@@ -11,13 +11,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -65,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
         simpword = findViewById(R.id.bt_simptotrad);
         display = findViewById(R.id.display);
         verifyStoragePermissions(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+        }
+
 
         takePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
                     ImageUri = Uri.fromFile(outputImage);
                 }
                 //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                //Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT,ImageUri);
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},1);//（询问用户授予权限）
                 startActivityIfNeeded(intent,TAKE_PHOTO);
@@ -104,11 +113,16 @@ public class MainActivity extends AppCompatActivity {
         reversePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                picture.setPivotX(picture.getWidth()/2);
-                picture.setPivotY(picture.getHeight()/2);//支点在图片中心
+//                picture.setPivotX(picture.getWidth()/2);
+//                picture.setPivotY(picture.getHeight()/2);//支点在图片中心
+                //  picture.setRotation(degree);
                 int i = count++;
                 float degree = 90 * i;
-                picture.setRotation(degree);
+                picture.animate().rotation(degree);
+
+
+
+                Toast.makeText(MainActivity.this,"角度："+degree+" 宽度："+picture.getWidth(),Toast.LENGTH_LONG).show();
             }
         });
 
@@ -139,8 +153,13 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             picture.setDrawingCacheEnabled(true);
-                            Bitmap bitmap = Bitmap.createBitmap(picture.getDrawingCache());
+                            Matrix mtx = new Matrix();
+                            mtx.postRotate(90*(count-1));
+                            Bitmap bitmap = Bitmap.createBitmap(picture.getDrawingCache(),0, 0, picture.getWidth(), picture.getHeight(), mtx, true);
                             picture.setDrawingCacheEnabled(false);
+                           // Toast.makeText(MainActivity.this,"角度："+count+" 宽度：",Toast.LENGTH_LONG).show();
+
+
                             //picture.buildDrawingCache();
                             //Bitmap bitmap = picture.getDrawingCache();
                             //Bitmap bitmap = ((BitmapDrawable)picture.getDrawable()).getBitmap();
